@@ -1,11 +1,11 @@
 #include <Servo.h>
 
 // --- Pin Definitions ---
-// Sensor A (Original)
+// Sensor A 
 const int trigPinA = 9;
 const int echoPinA = 10;
 
-// Sensor B (New)
+// Sensor B 
 const int trigPinB = 2;
 const int echoPinB = 5;
 
@@ -17,7 +17,7 @@ const int detectionDistance = 20; // Trigger distance in cm
 
 // Objects and Variables
 Servo myServo; 
-bool isOpen = false;      // Tracks if servo is at 180 (true) or 0 (false)
+bool isOpen = false;      // Tracks if servo is at 170 (true) or 53 (false)
 int openedBySensor = 0;   // 0 = None, 1 = Sensor A, 2 = Sensor B
 
 void setup() {
@@ -35,8 +35,6 @@ void setup() {
   myServo.attach(servoPin);
   myServo.write(53); // Start at original position
   delay(500);
-  
-  Serial.println("System Ready. Waiting for Sensor A or B...");
 }
 
 void loop() {
@@ -47,7 +45,7 @@ void loop() {
 
   // --- LOGIC BLOCK ---
 
-  // SCENARIO 1: Servo is currently CLOSED (0 degrees)
+  // SCENARIO 1: Servo is currently CLOSED (53 degrees)
   if (!isOpen) {
     if (distA > 0 && distA < detectionDistance) {
       // Sensor A triggered opening
@@ -59,7 +57,7 @@ void loop() {
     }
   }
   
-  // SCENARIO 2: Servo is currently OPEN (180 degrees)
+  // SCENARIO 2: Servo is currently OPEN (170 degrees)
   else {
     // If opened by A, wait for B to close it
     if (openedBySensor == 1) {
@@ -79,21 +77,14 @@ void loop() {
 }
 
 // --- Helper Functions ---
-
 void openGate(int sensorID) {
-  Serial.print("Detected by Sensor ");
-  Serial.print(sensorID == 1 ? "A" : "B");
-  Serial.println(". Opening Servo...");
-  
   myServo.write(170);
   isOpen = true;
   openedBySensor = sensorID; // Remember who opened it
   delay(1000); // Debounce delay to let the person move past the first sensor
 }
 
-void closeGate() {
-  Serial.println("Detected by other sensor. Closing Servo...");
-  
+void closeGate() {  
   myServo.write(53);
   isOpen = false;
   openedBySensor = 0; // Reset
